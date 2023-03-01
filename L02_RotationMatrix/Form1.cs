@@ -9,12 +9,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Numerics;
 
 namespace L02_RotationMatrix
 {
     public partial class Form1 : Form
     {
-        List<Tuple<double, double, double>> XYZPoints;
+        Point3D[] points;
         public Form1()
         {
             InitializeComponent();
@@ -22,7 +23,7 @@ namespace L02_RotationMatrix
 
         private void buttonGenerate_Click(object sender, EventArgs e)
         {
-            XYZPoints = GenerateRandomPoints((int)UpDownCout.Value);
+            points = GenerateRandomPoints((int)UpDownCout.Value);
             DrawPerspective();
         }
 
@@ -32,7 +33,7 @@ namespace L02_RotationMatrix
             openFileDialog.Filter = "Табличные данные (*.CSV)|*.CSV";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                XYZPoints = LoadDataFromCSV(openFileDialog.FileName);
+                points = LoadDataFromCSV(openFileDialog.FileName);
 
             }
         } 
@@ -43,7 +44,7 @@ namespace L02_RotationMatrix
             saveFileDialog.Filter = "Табличные данные (*.CSV)|*.CSV";
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                SaveDataToCSV(saveFileDialog.FileName, XYZPoints);
+                SaveDataToCSV(saveFileDialog.FileName, points);
             }
         }
 
@@ -54,58 +55,81 @@ namespace L02_RotationMatrix
             {
                 graphics.Clear(Color.MidnightBlue);
             }
-            for (int i = 0; i < XYZPoints.Count; i++)
+            for (int i = 0; i < points.Length; i++)
             {
-                int px = (int)Math.Round((XYZPoints[i].Item1 + 1) / 2 * (bitmap.Width-1));
-                int py = (int)Math.Round((XYZPoints[i].Item2 + 1) / 2 * (bitmap.Height-1));
+                int px = (int)Math.Round((points[i].x + 1) / 2 * (bitmap.Width-1));
+                int py = (int)Math.Round((points[i].y + 1) / 2 * (bitmap.Height-1));
 
-                int colorValue = (int)Math.Round(255 * (XYZPoints[i].Item3 + 1) / 2);
+                int colorValue = (int)Math.Round(255 * (points[i].z + 1) / 2);
                 Color color = Color.FromArgb(colorValue, colorValue, colorValue);
                 bitmap.SetPixel(px, py, color);
             }
             pictureBox1.Image = bitmap;
 
         }
+
         private void DrawPerspective()
         {
-            Bitmap bitmap = new Bitmap(600, 600);
-            using (Graphics graphics = Graphics.FromImage(bitmap))
+            Bitmap bmp = new Bitmap(600, 600);
+            using (Graphics graphics = Graphics.FromImage(bmp))
             {
                 graphics.Clear(Color.MidnightBlue);
             }
-            double theta = Math.PI / 4; // угол обзора в радианах
-            for (int i = 0; i < XYZPoints.Count; i++)
+
+            // параметры проекции
+            const float near = 4f;  // расстояние до ближней плоскости отсечения
+            const float far = 5f;   // расстояние до дальней плоскости отсечения
+            const float fov = 90f;  // угол обзора камеры (Field of View)
+            float aspect = (float)bmp.Height / bmp.Width; // соотношение сторон битмапа
+
+            // координаты камеры
+            float camX = 0.0f;
+            float camY = 0.0f;
+            float camZ = 0.0f;
+
+            // проекционная матрица
+            Matrix4x4 projectionMatrix = Matrix4x4.CreatePerspective(400,400,4,5);
+                //fov * (float)Math.PI / 180.0f, aspect, near, far);
+
+            // модельно-видовая матрица
+            Matrix4x4 viewMatrix = Matrix4x4.CreateTranslation(-camX, -camY, -camZ);
+
+
+
+            // Применение матрицы преобразования координат к каждой точке
+            for (int i = 0; i < points.Length; i++)
             {
-                double xNew = Math.Cos(theta) * XYZPoints[i].Item1 + Math.Sin(theta) * XYZPoints[i].Item3;
-                double yNew = XYZPoints[i].Item2;
-                double zNew = -Math.Sin(theta) * XYZPoints[i].Item1 + Math.Cos(theta) * XYZPoints[i].Item3;
+                Vector3 point = new Vector3(
+                    (float)points[i].x,
+                    (float)points[i].y,
+                    (float)points[i].z);
+                // перспективное преобразование координат
+                Vector3 transformedPoint = Vector3.Transform(point, projectionMatrix);
+                points[i] = new Point3D(transformedPoint.X, transformedPoint.Y, transformedPoint.Z);
 
-                // Вычисляем яркость точки
-                int colorValue = (int)Math.Round(255 * (XYZPoints[i].Item3 + 1) / 2);
-                Color color = Color.FromArgb(colorValue, colorValue, colorValue);
-
-                // Рисуем точку на битовой карте с заданной яркостью
-                int xPixel = (int)((xNew + 1) / 2 * bitmap.Width);
-                int yPixel = (int)((yNew+1) / 2 * bitmap.Height);
-                bitmap.SetPixel(xPixel, yPixel, color);
+                int colorValue = (int)Math.Round(255 * (points[i].z + 1) / 2);
+                //Color color = Color.FromArgb(colorValue, colorValue, colorValue);
+                //bmp.SetPixel((int)points[i].x, (int)points[i].y, color);
             }
-            pictureBox1.Image = bitmap;
+
+
+            pictureBox1.Image = bmp;
         }
 
-        static void SaveDataToCSV(string filename, List<Tuple<double, double, double>> data)
+        private void SaveDataToCSV(string filename, Point3D[] data)
         {
             using (StreamWriter writer = new StreamWriter(filename))
             {
-                foreach (Tuple<double, double, double> point in data)
+                foreach (Point3D point in data)
                 {
-                    writer.WriteLine($"{point.Item1};{point.Item2};{point.Item3}");
+                    writer.WriteLine($"{point.x};{point.y};{point.z}");
                 }
             }
         }
 
-        private List<Tuple<double, double, double>> LoadDataFromCSV(string filename)
+        private Point3D[] LoadDataFromCSV(string filename)
         {
-            List<Tuple<double, double, double>> data = new List<Tuple<double, double, double>>();
+            List<Point3D> data = new List<Point3D>();
             using (StreamReader reader = new StreamReader(filename))
             {
                 string line;
@@ -115,22 +139,22 @@ namespace L02_RotationMatrix
                     double x = double.Parse(values[0]);
                     double y = double.Parse(values[1]);
                     double z = double.Parse(values[2]);
-                    data.Add(new Tuple<double, double, double>(x, y, z));
+                    data.Add(new Point3D(x, y, z));
                 }
             }
-            return data;
+            return data.ToArray();
         }
 
-        private List<Tuple<double, double, double>> GenerateRandomPoints(int numPoints)
+        private Point3D[] GenerateRandomPoints(int numPoints)
         {
             Random random = new Random();
-            List<Tuple<double, double, double>> points = new List<Tuple<double, double, double>>();
+            Point3D[] points = new Point3D[numPoints];
             for (int i = 0; i < numPoints; i++)
             {
                 double x = random.NextDouble() * 2 - 1; // случайное число в диапазоне [-1, 1)
                 double y = random.NextDouble() * 2 - 1; // случайное число в диапазоне [-1, 1)
                 double z = random.NextDouble() * 2 - 1; // случайное число в диапазоне [-1, 1)
-                points.Add(new Tuple<double, double, double>(x, y, z));
+                points[i] = new Point3D(x, y, z);
             }
             return points;
         }
