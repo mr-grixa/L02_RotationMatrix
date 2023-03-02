@@ -1,30 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Numerics;
+using System.Windows.Forms;
 
 namespace L02_RotationMatrix
 {
     public partial class Form1 : Form
     {
         Point3D[] points;
+        Color[] randomColors;
         public Form1()
         {
             InitializeComponent();
+            radioButton_perspective.Checked = true;
         }
+
+        private void Draw()
+        {
+            if (randomColors==null|| randomColors.Length != points.Length)
+            {
+                randomColors = new Color[points.Length];
+                Random random = new Random();
+                for (int i = 0; i < randomColors.Length; i++)
+                {
+                    randomColors[i] = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
+                }
+            }
+            if (radioButton_perspective.Checked)
+            {
+                DrawPerspective();
+            }
+            else
+            {
+                DrawOrthogonal();
+            }
+        }
+
 
         private void buttonGenerate_Click(object sender, EventArgs e)
         {
             points = GenerateRandomPoints((int)UpDownCout.Value);
-            DrawPerspective();
+            Draw();
         }
 
         private void buttonLoad_Click(object sender, EventArgs e)
@@ -36,8 +54,9 @@ namespace L02_RotationMatrix
                 points = LoadDataFromCSV(openFileDialog.FileName);
 
             }
-        } 
-        
+            Draw();
+        }
+
         private void buttonSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -57,8 +76,8 @@ namespace L02_RotationMatrix
             }
             for (int i = 0; i < points.Length; i++)
             {
-                int px = (int)Math.Round((points[i].x + 1) / 2 * (bitmap.Width-1));
-                int py = (int)Math.Round((points[i].y + 1) / 2 * (bitmap.Height-1));
+                int px = (int)Math.Round((points[i].x + 1) / 2 * (bitmap.Width - 1));
+                int py = (int)Math.Round((points[i].y + 1) / 2 * (bitmap.Height - 1));
 
                 int colorValue = (int)Math.Round(255 * (points[i].z + 1) / 2);
                 Color color = Color.FromArgb(colorValue, colorValue, colorValue);
@@ -83,18 +102,51 @@ namespace L02_RotationMatrix
             float aspect = (float)bmp.Height / bmp.Width; // соотношение сторон битмапа
 
             // координаты камеры
-            float camX = 0.0f;
-            float camY = 0.0f;
-            float camZ = 0.0f;
+            float camX = (float)numericUpDownX.Value;
+            float camY = (float)numericUpDownY.Value;
+            float camZ = (float)numericUpDownZ.Value;
 
             // проекционная матрица
-            Matrix4x4 projectionMatrix = Matrix4x4.CreatePerspective(400,400,4,5);
-                //fov * (float)Math.PI / 180.0f, aspect, near, far);
+            Matrix4x4 projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+                (float)numericUpDown2.Value * (float)Math.PI / 180.0f,
+                aspect,
+                (float)numericUpDown4.Value,
+                (float)numericUpDown5.Value);
+            //fov * (float)Math.PI / 180.0f, aspect, near, far);
 
             // модельно-видовая матрица
             Matrix4x4 viewMatrix = Matrix4x4.CreateTranslation(-camX, -camY, -camZ);
 
+            // углы
+            float angleX = (float)numericUpDownRX.Value * (float)Math.PI / 180.0f;
+            float angleY = (float)numericUpDownRY.Value * (float)Math.PI / 180.0f;
+            float angleZ = (float)numericUpDownRZ.Value * (float)Math.PI / 180.0f;
+            // Вычисление тригонометрических функций углов поворота
+            float cosX = (float)Math.Cos(angleX);
+            float cosY = (float)Math.Cos(angleY);
+            float cosZ = (float)Math.Cos(angleZ);
+            float sinX = (float)Math.Sin(angleX);
+            float sinY = (float)Math.Sin(angleY);
+            float sinZ = (float)Math.Sin(angleZ);
 
+            // Создание матрицы поворота
+            Matrix4x4 rotationMatrix = new Matrix4x4();
+            rotationMatrix.M11 = cosY * cosZ;
+            rotationMatrix.M12 = -cosY * sinZ;
+            rotationMatrix.M13 = sinY;
+            rotationMatrix.M14 = 0f;
+            rotationMatrix.M21 = sinX * sinY * cosZ + cosX * sinZ;
+            rotationMatrix.M22 = -sinX * sinY * sinZ + cosX * cosZ;
+            rotationMatrix.M23 = -sinX * cosY;
+            rotationMatrix.M24 = 0f;
+            rotationMatrix.M31 = -cosX * sinY * cosZ + sinX * sinZ;
+            rotationMatrix.M32 = cosX * sinY * sinZ + sinX * cosZ;
+            rotationMatrix.M33 = cosX * cosY;
+            rotationMatrix.M34 = 0f;
+            rotationMatrix.M41 = 0f;
+            rotationMatrix.M42 = 0f;
+            rotationMatrix.M43 = 0f;
+            rotationMatrix.M44 = 1f;
 
             // Применение матрицы преобразования координат к каждой точке
             for (int i = 0; i < points.Length; i++)
@@ -104,14 +156,25 @@ namespace L02_RotationMatrix
                     (float)points[i].y,
                     (float)points[i].z);
                 // перспективное преобразование координат
-                Vector3 transformedPoint = Vector3.Transform(point, projectionMatrix);
-                points[i] = new Point3D(transformedPoint.X, transformedPoint.Y, transformedPoint.Z);
+                Vector3 transformedPoint = Vector3.Transform(point, projectionMatrix * viewMatrix * rotationMatrix);
 
-                int colorValue = (int)Math.Round(255 * (points[i].z + 1) / 2);
-                //Color color = Color.FromArgb(colorValue, colorValue, colorValue);
-                //bmp.SetPixel((int)points[i].x, (int)points[i].y, color);
+                // int colorValue = (int)Math.Round(255 * (points[i].z + 1) / 2,MidpointRounding.);
+                int px = (int)Math.Round((transformedPoint.X + 1) / 2 * (bmp.Width - 1));
+                int py = (int)Math.Round((transformedPoint.Y + 1) / 2 * (bmp.Height - 1));
+
+                if (px > 0 && px < 600 && py > 0 && py < 600)
+                {
+                    //Color color = Color.FromArgb(colorValue, colorValue, colorValue);
+                    bmp.SetPixel(px, py, randomColors[i]);
+
+                }
+
             }
-
+            using (Graphics graphics = Graphics.FromImage(bmp))
+            {
+                graphics.DrawLine(Pens.Red, 0, 300, 600, 300);
+                graphics.DrawLine(Pens.Green, 300, 0, 300, 600);
+            }
 
             pictureBox1.Image = bmp;
         }
@@ -167,6 +230,16 @@ namespace L02_RotationMatrix
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             label1.Text = Math.Sin((double)numericUpDown1.Value).ToString();
+        }
+
+
+        private void Draw_Changed(object sender, EventArgs e)
+        {
+            if (points != null)
+            {
+                Draw();
+            }
+
         }
     }
 }
