@@ -3,31 +3,34 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
+using System.Reflection;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace L02_RotationMatrix
 {
     public partial class Form1 : Form
     {
         Point3D[] points;
-        Color[] randomColors;
+        //Color[] randomColors;
         public Form1()
         {
             InitializeComponent();
             radioButton_perspective.Checked = true;
+            radioButtonSpin.Checked = true;
         }
 
         private void Draw()
         {
-            if (randomColors==null|| randomColors.Length != points.Length)
-            {
-                randomColors = new Color[points.Length];
-                Random random = new Random();
-                for (int i = 0; i < randomColors.Length; i++)
-                {
-                    randomColors[i] = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
-                }
-            }
+            //if (randomColors==null|| randomColors.Length != points.Length)
+            //{
+            //    randomColors = new Color[points.Length];
+            //    Random random = new Random();
+            //    for (int i = 0; i < randomColors.Length; i++)
+            //    {
+            //        randomColors[i] = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
+            //    }
+            //}
             if (radioButton_perspective.Checked)
             {
                 DrawPerspective();
@@ -41,7 +44,14 @@ namespace L02_RotationMatrix
 
         private void buttonGenerate_Click(object sender, EventArgs e)
         {
-            points = GenerateRandomPoints((int)UpDownCout.Value);
+            if (radioButtonCube.Checked)
+            {
+                points = GenerateRandomPoints((int)UpDownCout.Value);
+            }
+            else
+            {
+                points = GenerateSpinPoints((int)UpDownCout.Value);
+            }
             Draw();
         }
 
@@ -60,6 +70,7 @@ namespace L02_RotationMatrix
         private void buttonSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = "data";
             saveFileDialog.Filter = "Табличные данные (*.CSV)|*.CSV";
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -72,7 +83,7 @@ namespace L02_RotationMatrix
             Bitmap bitmap = new Bitmap(600, 600);
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
-                graphics.Clear(Color.MidnightBlue);
+                graphics.Clear(Color.Black);
             }
             for (int i = 0; i < points.Length; i++)
             {
@@ -92,13 +103,9 @@ namespace L02_RotationMatrix
             Bitmap bmp = new Bitmap(600, 600);
             using (Graphics graphics = Graphics.FromImage(bmp))
             {
-                graphics.Clear(Color.MidnightBlue);
+                graphics.Clear(Color.Black);
             }
 
-            // параметры проекции
-            const float near = 4f;  // расстояние до ближней плоскости отсечения
-            const float far = 5f;   // расстояние до дальней плоскости отсечения
-            const float fov = 90f;  // угол обзора камеры (Field of View)
             float aspect = (float)bmp.Height / bmp.Width; // соотношение сторон битмапа
 
             // координаты камеры
@@ -110,44 +117,25 @@ namespace L02_RotationMatrix
             Matrix4x4 projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
                 (float)numericUpDown2.Value * (float)Math.PI / 180.0f,
                 aspect,
-                (float)numericUpDown4.Value,
-                (float)numericUpDown5.Value);
-            //fov * (float)Math.PI / 180.0f, aspect, near, far);
+                0.001f,
+                1000f);
 
-            // модельно-видовая матрица
-            Matrix4x4 viewMatrix = Matrix4x4.CreateTranslation(-camX, -camY, -camZ);
+            Vector3 cameraPosition = new Vector3(camX, camY, camZ); // начальная позиция камеры
+            Vector3 objectPosition = new Vector3(0, 0, 0); // позиция объекта, вокруг которого будем вращать камеру
+            Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(-(objectPosition - cameraPosition));
 
             // углы
             float angleX = (float)numericUpDownRX.Value * (float)Math.PI / 180.0f;
             float angleY = (float)numericUpDownRY.Value * (float)Math.PI / 180.0f;
             float angleZ = (float)numericUpDownRZ.Value * (float)Math.PI / 180.0f;
-            // Вычисление тригонометрических функций углов поворота
-            float cosX = (float)Math.Cos(angleX);
-            float cosY = (float)Math.Cos(angleY);
-            float cosZ = (float)Math.Cos(angleZ);
-            float sinX = (float)Math.Sin(angleX);
-            float sinY = (float)Math.Sin(angleY);
-            float sinZ = (float)Math.Sin(angleZ);
 
-            // Создание матрицы поворота
-            Matrix4x4 rotationMatrix = new Matrix4x4();
-            rotationMatrix.M11 = cosY * cosZ;
-            rotationMatrix.M12 = -cosY * sinZ;
-            rotationMatrix.M13 = sinY;
-            rotationMatrix.M14 = 0f;
-            rotationMatrix.M21 = sinX * sinY * cosZ + cosX * sinZ;
-            rotationMatrix.M22 = -sinX * sinY * sinZ + cosX * cosZ;
-            rotationMatrix.M23 = -sinX * cosY;
-            rotationMatrix.M24 = 0f;
-            rotationMatrix.M31 = -cosX * sinY * cosZ + sinX * sinZ;
-            rotationMatrix.M32 = cosX * sinY * sinZ + sinX * cosZ;
-            rotationMatrix.M33 = cosX * cosY;
-            rotationMatrix.M34 = 0f;
-            rotationMatrix.M41 = 0f;
-            rotationMatrix.M42 = 0f;
-            rotationMatrix.M43 = 0f;
-            rotationMatrix.M44 = 1f;
+            Matrix4x4 rotationX =Matrix4x4.CreateRotationX(angleX);
+            Matrix4x4 rotationY =Matrix4x4.CreateRotationY(angleY);
+            Matrix4x4 rotationZ =Matrix4x4.CreateRotationZ(angleZ);
+            Matrix4x4 rotationMatrix=rotationX*rotationY*rotationZ;
 
+            Matrix4x4 viewMatrix = rotationMatrix * translationMatrix;
+            Matrix4x4 viewProjectionMatrix = viewMatrix * projectionMatrix;
             // Применение матрицы преобразования координат к каждой точке
             for (int i = 0; i < points.Length; i++)
             {
@@ -156,38 +144,53 @@ namespace L02_RotationMatrix
                     (float)points[i].y,
                     (float)points[i].z);
                 // перспективное преобразование координат
-                Vector3 transformedPoint = Vector3.Transform(point, projectionMatrix * viewMatrix * rotationMatrix);
+                Vector3 transformedPoint = Vector3.Transform(point, viewProjectionMatrix);
 
                 // int colorValue = (int)Math.Round(255 * (points[i].z + 1) / 2,MidpointRounding.);
                 int px = (int)Math.Round((transformedPoint.X + 1) / 2 * (bmp.Width - 1));
                 int py = (int)Math.Round((transformedPoint.Y + 1) / 2 * (bmp.Height - 1));
 
-                if (px > 0 && px < 600 && py > 0 && py < 600)
+                //освещение
+                float ambientIntensity = 0.1f; // интенсивность фонового освещения
+                float lightIntensity = 1f; // интенсивность источника света
+                float attenuationFactor = 0.1f; // коэффициент затухания
+                float distance = Vector3.Distance(cameraPosition, point);
+                float attenuation = 1 / (1 + attenuationFactor * distance * distance);
+                float intensity = ambientIntensity + lightIntensity * attenuation;
+                if (intensity > 1) { intensity= 1; }
+                if (px > 0 && px < 600 && py > 0 && py < 600&& transformedPoint.Z<0)
                 {
-                    //Color color = Color.FromArgb(colorValue, colorValue, colorValue);
-                    bmp.SetPixel(px, py, randomColors[i]);
+                    Color color = Color.FromArgb(
+                    (int)((points[i].x*100+155)* intensity),
+                    (int)((points[i].y*100+155)* intensity),
+                    (int)((points[i].z*100+155)* intensity));
+                    bmp.SetPixel(px, py, color);
 
                 }
 
             }
-            using (Graphics graphics = Graphics.FromImage(bmp))
-            {
-                graphics.DrawLine(Pens.Red, 0, 300, 600, 300);
-                graphics.DrawLine(Pens.Green, 300, 0, 300, 600);
-            }
+            //using (Graphics graphics = Graphics.FromImage(bmp))
+            //{
+            //    graphics.DrawLine(Pens.Red, 0, 300, 600, 300);
+            //    graphics.DrawLine(Pens.Green, 300, 0, 300, 600);
+            //}
 
             pictureBox1.Image = bmp;
         }
 
         private void SaveDataToCSV(string filename, Point3D[] data)
         {
-            using (StreamWriter writer = new StreamWriter(filename))
+            if (data != null)
             {
-                foreach (Point3D point in data)
-                {
-                    writer.WriteLine($"{point.x};{point.y};{point.z}");
-                }
+                 using (StreamWriter writer = new StreamWriter(filename))
+                 {
+                     foreach (Point3D point in data)
+                     {
+                         writer.WriteLine($"{point.x};{point.y};{point.z}");
+                     }
+                 }
             }
+
         }
 
         private Point3D[] LoadDataFromCSV(string filename)
@@ -222,24 +225,81 @@ namespace L02_RotationMatrix
             return points;
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private Point3D[] GenerateSpinPoints(int numPoints)
         {
-
+            Random random = new Random();
+            Point3D[] points = new Point3D[numPoints];
+            for (int i = 0; i < numPoints; i++)
+            {
+                double x = 0.7 * Math.Cos(6 * Math.PI * ((double)i / (double)numPoints));
+                double y = 0.6 * Math.Sin(4 * Math.PI * ((double)i / (double)numPoints));
+                double z = -1 + 2 * ((double)i / (double)numPoints);
+                points[i] = new Point3D(x, y, z);
+            }
+            return points;
         }
 
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-        {
-            label1.Text = Math.Sin((double)numericUpDown1.Value).ToString();
-        }
-
-
+        bool DrawOld;
         private void Draw_Changed(object sender, EventArgs e)
         {
             if (points != null)
             {
-                Draw();
+                DrawOld = true;
             }
 
+        }
+        
+        private Point startPoint;
+        private decimal RX;
+        private decimal RY;
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                startPoint = e.Location;
+                RX = numericUpDownRX.Value;
+                RY= numericUpDownRY.Value;
+            }
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                numericUpDownRY.Value+=((decimal)(startPoint.X-e.X)*(decimal)0.1);
+                numericUpDownRX.Value+=((decimal)(startPoint.Y-e.Y)*(decimal)0.1);
+                startPoint = e.Location;
+            }
+        }
+
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            startPoint = Point.Empty;
+            RX = 0;
+            RY = 0;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (DrawOld)
+            {
+                DrawOld= false;
+                Draw();
+            }
+        }
+
+        private void buttonSaveImg_Click(object sender, EventArgs e)
+        {
+            if (pictureBox1.Image != null)
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "PNG файлы (*.png)|*.png";
+                saveFileDialog.FileName = "img";
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    pictureBox1.Image.Save(saveFileDialog.FileName,System.Drawing.Imaging.ImageFormat.Png);
+                }   
+            }     
         }
     }
 }

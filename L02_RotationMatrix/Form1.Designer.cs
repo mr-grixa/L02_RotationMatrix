@@ -28,19 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.UpDownCout = new System.Windows.Forms.NumericUpDown();
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.buttonLoad = new System.Windows.Forms.Button();
             this.buttonSave = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.label4 = new System.Windows.Forms.Label();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.numericUpDown5 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownZ = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownY = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownX = new System.Windows.Forms.NumericUpDown();
@@ -49,25 +44,32 @@
             this.numericUpDownRX = new System.Windows.Forms.NumericUpDown();
             this.radioButton_ortogonal = new System.Windows.Forms.RadioButton();
             this.radioButton_perspective = new System.Windows.Forms.RadioButton();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.radioButtonSpin = new System.Windows.Forms.RadioButton();
+            this.radioButtonCube = new System.Windows.Forms.RadioButton();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label1 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.buttonSaveImg = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.UpDownCout)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRX)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // UpDownCout
             // 
             this.UpDownCout.Location = new System.Drawing.Point(150, 17);
             this.UpDownCout.Maximum = new decimal(new int[] {
-            10000,
+            100000,
             0,
             0,
             0});
@@ -112,55 +114,29 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(307, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(307, 17);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(600, 600);
             this.pictureBox1.TabIndex = 17;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            // 
-            // numericUpDown1
-            // 
-            this.numericUpDown1.Location = new System.Drawing.Point(57, 133);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDown1.TabIndex = 18;
-            this.numericUpDown1.Value = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(184, 133);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 19;
-            this.label1.Text = "label1";
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(139, 394);
+            this.label2.Location = new System.Drawing.Point(17, 319);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 13);
+            this.label2.Size = new System.Drawing.Size(71, 13);
             this.label2.TabIndex = 21;
-            this.label2.Text = "label2";
+            this.label2.Text = "Угол обзора";
             // 
             // numericUpDown2
             // 
-            this.numericUpDown2.DecimalPlaces = 3;
-            this.numericUpDown2.Location = new System.Drawing.Point(12, 394);
+            this.numericUpDown2.Location = new System.Drawing.Point(96, 317);
             this.numericUpDown2.Maximum = new decimal(new int[] {
-            10000,
+            179,
             0,
             0,
             0});
@@ -168,9 +144,9 @@
             1,
             0,
             0,
-            196608});
+            0});
             this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDown2.Size = new System.Drawing.Size(53, 20);
             this.numericUpDown2.TabIndex = 20;
             this.numericUpDown2.Value = new decimal(new int[] {
             120,
@@ -179,81 +155,10 @@
             0});
             this.numericUpDown2.ValueChanged += new System.EventHandler(this.Draw_Changed);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(139, 420);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(35, 13);
-            this.label4.TabIndex = 25;
-            this.label4.Text = "label4";
-            // 
-            // numericUpDown4
-            // 
-            this.numericUpDown4.DecimalPlaces = 3;
-            this.numericUpDown4.Location = new System.Drawing.Point(12, 420);
-            this.numericUpDown4.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numericUpDown4.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            196608});
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDown4.TabIndex = 24;
-            this.numericUpDown4.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
-            this.numericUpDown4.ValueChanged += new System.EventHandler(this.Draw_Changed);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(139, 446);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(35, 13);
-            this.label5.TabIndex = 27;
-            this.label5.Text = "label5";
-            // 
-            // numericUpDown5
-            // 
-            this.numericUpDown5.DecimalPlaces = 3;
-            this.numericUpDown5.Location = new System.Drawing.Point(12, 446);
-            this.numericUpDown5.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numericUpDown5.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            196608});
-            this.numericUpDown5.Name = "numericUpDown5";
-            this.numericUpDown5.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDown5.TabIndex = 26;
-            this.numericUpDown5.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.numericUpDown5.ValueChanged += new System.EventHandler(this.Draw_Changed);
-            // 
             // numericUpDownZ
             // 
             this.numericUpDownZ.DecimalPlaces = 3;
-            this.numericUpDownZ.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.numericUpDownZ.Location = new System.Drawing.Point(12, 296);
+            this.numericUpDownZ.Location = new System.Drawing.Point(17, 253);
             this.numericUpDownZ.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -267,6 +172,11 @@
             this.numericUpDownZ.Name = "numericUpDownZ";
             this.numericUpDownZ.Size = new System.Drawing.Size(52, 20);
             this.numericUpDownZ.TabIndex = 32;
+            this.numericUpDownZ.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             this.numericUpDownZ.ValueChanged += new System.EventHandler(this.Draw_Changed);
             // 
             // numericUpDownY
@@ -277,7 +187,7 @@
             0,
             0,
             131072});
-            this.numericUpDownY.Location = new System.Drawing.Point(12, 260);
+            this.numericUpDownY.Location = new System.Drawing.Point(17, 221);
             this.numericUpDownY.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -301,7 +211,7 @@
             0,
             0,
             131072});
-            this.numericUpDownX.Location = new System.Drawing.Point(12, 221);
+            this.numericUpDownX.Location = new System.Drawing.Point(17, 189);
             this.numericUpDownX.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -320,12 +230,7 @@
             // numericUpDownRZ
             // 
             this.numericUpDownRZ.DecimalPlaces = 3;
-            this.numericUpDownRZ.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.numericUpDownRZ.Location = new System.Drawing.Point(92, 296);
+            this.numericUpDownRZ.Location = new System.Drawing.Point(96, 253);
             this.numericUpDownRZ.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -344,12 +249,7 @@
             // numericUpDownRY
             // 
             this.numericUpDownRY.DecimalPlaces = 3;
-            this.numericUpDownRY.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.numericUpDownRY.Location = new System.Drawing.Point(92, 260);
+            this.numericUpDownRY.Location = new System.Drawing.Point(96, 221);
             this.numericUpDownRY.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -368,12 +268,7 @@
             // numericUpDownRX
             // 
             this.numericUpDownRX.DecimalPlaces = 3;
-            this.numericUpDownRX.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.numericUpDownRX.Location = new System.Drawing.Point(92, 221);
+            this.numericUpDownRX.Location = new System.Drawing.Point(96, 189);
             this.numericUpDownRX.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -392,67 +287,143 @@
             // radioButton_ortogonal
             // 
             this.radioButton_ortogonal.AutoSize = true;
-            this.radioButton_ortogonal.Location = new System.Drawing.Point(13, 76);
+            this.radioButton_ortogonal.Location = new System.Drawing.Point(7, 19);
             this.radioButton_ortogonal.Name = "radioButton_ortogonal";
-            this.radioButton_ortogonal.Size = new System.Drawing.Size(154, 17);
+            this.radioButton_ortogonal.Size = new System.Drawing.Size(103, 17);
             this.radioButton_ortogonal.TabIndex = 36;
             this.radioButton_ortogonal.TabStop = true;
-            this.radioButton_ortogonal.Text = "Ортогональная проекция";
+            this.radioButton_ortogonal.Text = "Ортогональная";
             this.radioButton_ortogonal.UseVisualStyleBackColor = true;
             this.radioButton_ortogonal.CheckedChanged += new System.EventHandler(this.Draw_Changed);
             // 
             // radioButton_perspective
             // 
             this.radioButton_perspective.AutoSize = true;
-            this.radioButton_perspective.Location = new System.Drawing.Point(12, 99);
+            this.radioButton_perspective.Location = new System.Drawing.Point(7, 42);
             this.radioButton_perspective.Name = "radioButton_perspective";
-            this.radioButton_perspective.Size = new System.Drawing.Size(155, 17);
+            this.radioButton_perspective.Size = new System.Drawing.Size(104, 17);
             this.radioButton_perspective.TabIndex = 37;
             this.radioButton_perspective.TabStop = true;
-            this.radioButton_perspective.Text = "Перспективная проекция";
+            this.radioButton_perspective.Text = "Перспективная";
             this.radioButton_perspective.UseVisualStyleBackColor = true;
             this.radioButton_perspective.CheckedChanged += new System.EventHandler(this.Draw_Changed);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.radioButton_perspective);
+            this.groupBox1.Controls.Add(this.radioButton_ortogonal);
+            this.groupBox1.Location = new System.Drawing.Point(13, 76);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(130, 68);
+            this.groupBox1.TabIndex = 38;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Проекция";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.radioButtonSpin);
+            this.groupBox2.Controls.Add(this.radioButtonCube);
+            this.groupBox2.Location = new System.Drawing.Point(150, 76);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(131, 68);
+            this.groupBox2.TabIndex = 39;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Фигура";
+            // 
+            // radioButtonSpin
+            // 
+            this.radioButtonSpin.AutoSize = true;
+            this.radioButtonSpin.Location = new System.Drawing.Point(6, 42);
+            this.radioButtonSpin.Name = "radioButtonSpin";
+            this.radioButtonSpin.Size = new System.Drawing.Size(68, 17);
+            this.radioButtonSpin.TabIndex = 39;
+            this.radioButtonSpin.TabStop = true;
+            this.radioButtonSpin.Text = "Спирали";
+            this.radioButtonSpin.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonCube
+            // 
+            this.radioButtonCube.AutoSize = true;
+            this.radioButtonCube.Location = new System.Drawing.Point(6, 19);
+            this.radioButtonCube.Name = "radioButtonCube";
+            this.radioButtonCube.Size = new System.Drawing.Size(43, 17);
+            this.radioButtonCube.TabIndex = 38;
+            this.radioButtonCube.TabStop = true;
+            this.radioButtonCube.Text = "Куб";
+            this.radioButtonCube.UseVisualStyleBackColor = true;
+            // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 25;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(14, 164);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(65, 13);
+            this.label1.TabIndex = 40;
+            this.label1.Text = "Положение";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(93, 164);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(75, 13);
+            this.label3.TabIndex = 41;
+            this.label3.Text = "Направление";
+            // 
+            // buttonSaveImg
+            // 
+            this.buttonSaveImg.Location = new System.Drawing.Point(12, 372);
+            this.buttonSaveImg.Name = "buttonSaveImg";
+            this.buttonSaveImg.Size = new System.Drawing.Size(131, 26);
+            this.buttonSaveImg.TabIndex = 42;
+            this.buttonSaveImg.Text = "Сохранить картинку";
+            this.buttonSaveImg.UseVisualStyleBackColor = true;
+            this.buttonSaveImg.Click += new System.EventHandler(this.buttonSaveImg_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 618);
-            this.Controls.Add(this.radioButton_perspective);
-            this.Controls.Add(this.radioButton_ortogonal);
+            this.Controls.Add(this.buttonSaveImg);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.numericUpDownRZ);
             this.Controls.Add(this.numericUpDownRY);
             this.Controls.Add(this.numericUpDownRX);
             this.Controls.Add(this.numericUpDownZ);
             this.Controls.Add(this.numericUpDownY);
             this.Controls.Add(this.numericUpDownX);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.numericUpDown5);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.numericUpDown4);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numericUpDown2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.buttonLoad);
             this.Controls.Add(this.UpDownCout);
             this.Controls.Add(this.buttonGenerate);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Щербинин Григорий 201-325";
             ((System.ComponentModel.ISupportInitialize)(this.UpDownCout)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRX)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -465,14 +436,8 @@
         private System.Windows.Forms.Button buttonLoad;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.NumericUpDown numericUpDown5;
         private System.Windows.Forms.NumericUpDown numericUpDownZ;
         private System.Windows.Forms.NumericUpDown numericUpDownY;
         private System.Windows.Forms.NumericUpDown numericUpDownX;
@@ -481,6 +446,14 @@
         private System.Windows.Forms.NumericUpDown numericUpDownRX;
         private System.Windows.Forms.RadioButton radioButton_ortogonal;
         private System.Windows.Forms.RadioButton radioButton_perspective;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton radioButtonSpin;
+        private System.Windows.Forms.RadioButton radioButtonCube;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button buttonSaveImg;
     }
 }
 
