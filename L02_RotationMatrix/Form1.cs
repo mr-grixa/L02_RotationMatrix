@@ -52,7 +52,29 @@ namespace L02_RotationMatrix
             {
                 points = GenerateSpinPoints((int)UpDownCout.Value);
             }
+            points = RandomaisePoints(points);
             Draw();
+        }
+
+        private Point3D[] RandomaisePoints(Point3D[] points)
+        {
+            Random rand = new Random(); //reuse this if you are generating many
+            foreach (Point3D point3D in points)
+            {
+                point3D.x += GenerateRandomNormal(0.1, 0.1, rand);
+                point3D.y += GenerateRandomNormal(0.1, 0.1, rand);
+                point3D.z += GenerateRandomNormal(0.1, 0.1, rand);
+            }
+            return points;
+        }
+        public double GenerateRandomNormal(double mean, double stdDev, Random rand)
+        {
+            double u1 = 1.0 - rand.NextDouble(); // случайное число от 0 до 1
+            double u2 = 1.0 - rand.NextDouble(); // случайное число от 0 до 1
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) *
+                Math.Sin(2.0 * Math.PI * u2); // применяем формулу Бокса-Мюллера
+            double randNormal = mean + stdDev * randStdNormal;
+            return randNormal;
         }
 
         private void buttonLoad_Click(object sender, EventArgs e)
@@ -106,7 +128,7 @@ namespace L02_RotationMatrix
                 graphics.Clear(Color.Black);
             }
 
-            float aspect = (float)bmp.Height / bmp.Width; // соотношение сторон битмапа
+            float aspect = (float)bmp.Height / bmp.Width; 
 
             // координаты камеры
             float camX = (float)numericUpDownX.Value;
@@ -136,7 +158,7 @@ namespace L02_RotationMatrix
 
             Matrix4x4 viewMatrix = rotationMatrix * translationMatrix;
             Matrix4x4 viewProjectionMatrix = viewMatrix * projectionMatrix;
-            // Применение матрицы преобразования координат к каждой точке
+
             for (int i = 0; i < points.Length; i++)
             {
                 Vector3 point = new Vector3(
@@ -217,9 +239,9 @@ namespace L02_RotationMatrix
             Point3D[] points = new Point3D[numPoints];
             for (int i = 0; i < numPoints; i++)
             {
-                double x = random.NextDouble() * 2 - 1; // случайное число в диапазоне [-1, 1)
-                double y = random.NextDouble() * 2 - 1; // случайное число в диапазоне [-1, 1)
-                double z = random.NextDouble() * 2 - 1; // случайное число в диапазоне [-1, 1)
+                double x = random.NextDouble() * 2 - 1; 
+                double y = random.NextDouble() * 2 - 1; 
+                double z = random.NextDouble() * 2 - 1; 
                 points[i] = new Point3D(x, y, z);
             }
             return points;
@@ -300,6 +322,12 @@ namespace L02_RotationMatrix
                     pictureBox1.Image.Save(saveFileDialog.FileName,System.Drawing.Imaging.ImageFormat.Png);
                 }   
             }     
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Random rand = new Random();
+            label4.Text = GenerateRandomNormal((double)numericUpDown3.Value, (double)numericUpDown1.Value, rand).ToString();
         }
     }
 }
