@@ -58,12 +58,13 @@ namespace L02_RotationMatrix
 
         private Point3D[] RandomaisePoints(Point3D[] points)
         {
-            Random rand = new Random(); //reuse this if you are generating many
+            double stdDev = (double)trackBar1.Value/100;
+            Random rand = new Random(); 
             foreach (Point3D point3D in points)
             {
-                point3D.x += GenerateRandomNormal(0.1, 0.1, rand);
-                point3D.y += GenerateRandomNormal(0.1, 0.1, rand);
-                point3D.z += GenerateRandomNormal(0.1, 0.1, rand);
+                point3D.x += GenerateRandomNormal(0, stdDev, rand);
+                point3D.y += GenerateRandomNormal(0, stdDev, rand);
+                point3D.z += GenerateRandomNormal(0, stdDev, rand);
             }
             return points;
         }
@@ -183,9 +184,9 @@ namespace L02_RotationMatrix
                 if (px > 0 && px < 600 && py > 0 && py < 600&& transformedPoint.Z<0)
                 {
                     Color color = Color.FromArgb(
-                    (int)((points[i].x*100+155)* intensity),
-                    (int)((points[i].y*100+155)* intensity),
-                    (int)((points[i].z*100+155)* intensity));
+                    (int)((byte)(points[i].x*100+155)* intensity),
+                    (int)((byte)(points[i].y*100+155)* intensity),
+                    (int)((byte)(points[i].z*100+155)* intensity));
                     bmp.SetPixel(px, py, color);
 
                 }
@@ -324,10 +325,9 @@ namespace L02_RotationMatrix
             }     
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            Random rand = new Random();
-            label4.Text = GenerateRandomNormal((double)numericUpDown3.Value, (double)numericUpDown1.Value, rand).ToString();
+            label_track.Text = ((double)trackBar1.Value / 100).ToString();
         }
     }
 }
